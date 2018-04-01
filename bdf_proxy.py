@@ -109,15 +109,15 @@ class EnhancedOutput:
 
     @staticmethod
     def print_error(txt):
-        print "[x] {0}".format(txt)
+        print("[x] {0}".format(txt))
 
     @staticmethod
     def print_info(txt):
-        print "[*] {0}".format(txt)
+        print("[*] {0}".format(txt))
 
     @staticmethod
     def print_warning(txt):
-        print "[!] {0}".format(txt)
+        print("[!] {0}".format(txt))
 
     @staticmethod
     def logging_error(txt):
@@ -221,7 +221,7 @@ class ProxyMaster(controller.Master):
         # When called will unpack and edit a Tar File and return a tar file"
 
         if len(aTarFileBytes) > int(self.archive_max_size):
-            print "[!] TarFile over allowed size"
+            print("[!] TarFile over allowed size")
             logging.info("TarFIle maxSize met %s", len(aTarFileBytes))
             return aTarFileBytes
 
@@ -246,7 +246,7 @@ class ProxyMaster(controller.Master):
 
         members = tar_file.getmembers()
         for info in members:
-            print "\t{0} {1}".format(info.name, info.size)
+            print("\t{0} {1}".format(info.name, info.size))
 
         new_tar_storage = tempfile.NamedTemporaryFile()
         new_tar_file = tarfile.open(mode='w' + compression_mode, fileobj=new_tar_storage)
@@ -263,7 +263,7 @@ class ProxyMaster(controller.Master):
                     new_tar_file.addfile(info, tar_file.extractfile(info))
                     continue
 
-                if info.size >= long(self.FileSizeMax):
+                if info.size >= self.FileSizeMax:
                     EnhancedOutput.print_warning("{0} is too big, skipping".format(info.name))
                     new_tar_file.addfile(info, tar_file.extractfile(info))
                     continue
@@ -274,7 +274,7 @@ class ProxyMaster(controller.Master):
                     EnhancedOutput.logging_info('Tar blacklist enforced on {0}'.format(info.name))
                     continue
             except:
-                print "[!] strange formating, bailing on this file"
+                print("[!] strange formating, bailing on this file")
                 continue
 
             # Try to patch
@@ -324,7 +324,7 @@ class ProxyMaster(controller.Master):
     def inject_zip(self, aZipFile):
         # When called will unpack and edit a Zip File and return a zip file
         if len(aZipFile) > int(self.archive_max_size):
-            print "[!] ZipFile over allowed size"
+            print("[!] ZipFile over allowed size")
             logging.info("ZipFIle maxSize met %s", len(aZipFile))
             return aZipFile
 
@@ -349,7 +349,7 @@ class ProxyMaster(controller.Master):
         EnhancedOutput.print_info("ZipFile contents and info:")
 
         for info in zippyfile.infolist():
-            print "\t{0} {1}".format(info.filename, info.file_size)
+            print("\t{0} {1}".format(info.filename, info.file_size))
 
         tmpDir = tempfile.mkdtemp()
         zippyfile.extractall(tmpDir)
@@ -365,7 +365,7 @@ class ProxyMaster(controller.Master):
                 EnhancedOutput.print_warning("{0} is not a file, skipping".format(info.filename))
                 continue
 
-            if os.lstat(actual_file).st_size >= long(self.FileSizeMax):
+            if os.lstat(actual_file).st_size >= self.FileSizeMax:
                 EnhancedOutput.print_warning("{0} is too big, skipping".format(info.filename))
                 continue
 
@@ -444,7 +444,7 @@ class ProxyMaster(controller.Master):
 
                 # update when supporting more than one arch
                 if (magic == int('20B', 16) and machineType == 0x8664 and
-                   self.WindowsType.lower() in ['all', 'x64']):
+                        self.WindowsType.lower() in ['all', 'x64']):
                     add_section = False
                     cave_jumping = False
                     if self.WindowsIntelx64['PATCH_TYPE'].lower() == 'append':
@@ -614,15 +614,18 @@ class ProxyMaster(controller.Master):
         elif type(self.host_whitelist) is str:
             if self.host_whitelist.lower() in flow.request.host.lower():
                 self.patchIT = True
-                EnhancedOutput.logging_info("Host whitelist hit: {0}, HOST: {1}".format(self.host_whitelist, flow.request.host))
+                EnhancedOutput.logging_info(
+                    "Host whitelist hit: {0}, HOST: {1}".format(self.host_whitelist, flow.request.host))
         elif flow.request.host.lower() in self.host_whitelist.lower():
             self.patchIT = True
-            EnhancedOutput.logging_info("Host whitelist hit: {0}, HOST: {1} ".format(self.host_whitelist, flow.request.host))
+            EnhancedOutput.logging_info(
+                "Host whitelist hit: {0}, HOST: {1} ".format(self.host_whitelist, flow.request.host))
         else:
             for keyword in self.host_whitelist:
                 if keyword.lower() in flow.requeset.host.lower():
                     self.patchIT = True
-                    EnhancedOutput.logging_info("Host whitelist hit: {0}, HOST: {1} ".format(self.host_whitelist, flow.request.host))
+                    EnhancedOutput.logging_info(
+                        "Host whitelist hit: {0}, HOST: {1} ".format(self.host_whitelist, flow.request.host))
                     break
 
     def keys_whitelist_check(self, flow):
@@ -635,42 +638,50 @@ class ProxyMaster(controller.Master):
         elif type(self.keys_whitelist) is str:
             if self.keys_whitelist.lower() in flow.request.path.lower():
                 self.patchIT = True
-                EnhancedOutput.logging_info("Keyword whitelist hit: {0}, PATH: {1}".format(self.keys_whitelist, flow.request.path))
+                EnhancedOutput.logging_info(
+                    "Keyword whitelist hit: {0}, PATH: {1}".format(self.keys_whitelist, flow.request.path))
         elif flow.request.host.lower() in [x.lower() for x in self.keys_whitelist]:
             self.patchIT = True
-            EnhancedOutput.logging_info("Keyword whitelist hit: {0}, PATH: {1}".format(self.keys_whitelist, flow.request.path))
+            EnhancedOutput.logging_info(
+                "Keyword whitelist hit: {0}, PATH: {1}".format(self.keys_whitelist, flow.request.path))
         else:
             for keyword in self.keys_whitelist:
                 if keyword.lower() in flow.requeset.path.lower():
                     self.patchIT = True
-                    EnhancedOutput.logging_info("Keyword whitelist hit: {0}, PATH: {1}".format(self.keys_whitelist, flow.request.path))
+                    EnhancedOutput.logging_info(
+                        "Keyword whitelist hit: {0}, PATH: {1}".format(self.keys_whitelist, flow.request.path))
                     break
 
     def keys_backlist_check(self, flow):
         if type(self.keys_blacklist) is str:
             if self.keys_blacklist.lower() in flow.request.path.lower():
                 self.patchIT = False
-                EnhancedOutput.logging_info("Keyword blacklist hit: {0}, PATH: {1}".format(self.keys_blacklist, flow.request.path))
+                EnhancedOutput.logging_info(
+                    "Keyword blacklist hit: {0}, PATH: {1}".format(self.keys_blacklist, flow.request.path))
         else:
             for keyword in self.keys_blacklist:
                 if keyword.lower() in flow.request.path.lower():
                     self.patchIT = False
-                    EnhancedOutput.logging_info("Keyword blacklist hit: {0}, PATH: {1}".format(self.keys_blacklist, flow.request.path))
+                    EnhancedOutput.logging_info(
+                        "Keyword blacklist hit: {0}, PATH: {1}".format(self.keys_blacklist, flow.request.path))
                     break
 
     def hosts_blacklist_check(self, flow):
         if type(self.host_blacklist) is str:
             if self.host_blacklist.lower() in flow.request.host.lower():
                 self.patchIT = False
-                EnhancedOutput.logging_info("Host Blacklist hit: {0} : HOST: {1} ".format(self.host_blacklist, flow.request.host))
+                EnhancedOutput.logging_info(
+                    "Host Blacklist hit: {0} : HOST: {1} ".format(self.host_blacklist, flow.request.host))
         elif flow.request.host.lower() in [x.lower() for x in self.host_blacklist]:
             self.patchIT = False
-            EnhancedOutput.logging_info("Host Blacklist hit: {0} : HOST: {1} ".format(self.host_blacklist, flow.request.host))
+            EnhancedOutput.logging_info(
+                "Host Blacklist hit: {0} : HOST: {1} ".format(self.host_blacklist, flow.request.host))
         else:
             for host in self.host_blacklist:
                 if host.lower() in flow.request.host.lower():
                     self.patchIT = False
-                    EnhancedOutput.logging_info("Host Blacklist hit: {0} : HOST: {1} ".format(self.host_blacklist, flow.request.host))
+                    EnhancedOutput.logging_info(
+                        "Host Blacklist hit: {0} : HOST: {1} ".format(self.host_blacklist, flow.request.host))
                     break
 
     def parse_target_config(self, targetConfig):
@@ -712,11 +723,11 @@ class ProxyMaster(controller.Master):
     '''
 
     def handle_request(self, flow):
-        print "*" * 10, "REQUEST", "*" * 10
+        print("*" * 10, "REQUEST", "*" * 10)
         EnhancedOutput.print_info("HOST: {0}".format(flow.request.host))
         EnhancedOutput.print_info("PATH: {0}".format(flow.request.path))
         flow.reply()
-        print "*" * 10, "END REQUEST", "*" * 10
+        print("*" * 10, "END REQUEST", "*" * 10)
 
     def handle_response(self, flow):
         # Read config here for dynamic updating
@@ -729,7 +740,7 @@ class ProxyMaster(controller.Master):
             if target in flow.request.host:
                 self.parse_target_config(self.user_config['targets'][target])
 
-        print "=" * 10, "RESPONSE", "=" * 10
+        print("=" * 10, "RESPONSE", "=" * 10)
 
         EnhancedOutput.print_info("HOST: {0}".format(flow.request.host))
         EnhancedOutput.print_info("PATH: {0}".format(flow.request.path))
@@ -747,24 +758,30 @@ class ProxyMaster(controller.Master):
         self.hosts_blacklist_check(flow)
 
         if 'content-length' in flow.request.headers.keys():
-            if int(flow.request.headers['content-length'][0]) >= long(self.FileSizeMax):
+            if int(flow.request.headers['content-length'][0]) >= self.FileSizeMax:
                 EnhancedOutput.print_warning("Not patching over content-length, forwarding to user")
-                EnhancedOutput.logging_info("Over FileSizeMax setting {0} : {1}".format(flow.request.host, flow.request.path))
+                EnhancedOutput.logging_info(
+                    "Over FileSizeMax setting {0} : {1}".format(flow.request.host, flow.request.path))
                 self.patchIT = False
 
         if self.patchIT is False:
             EnhancedOutput.print_warning("Not patching, flow did not make it through config settings")
-            EnhancedOutput.logging_info("Config did not allow the patching of HOST: {0}, PATH: {1}".format(flow.request.host, flow.request.path))
+            EnhancedOutput.logging_info(
+                "Config did not allow the patching of HOST: {0}, PATH: {1}".format(flow.request.host,
+                                                                                   flow.request.path))
 
             flow.reply()
         else:
-            if self.bytes_have_format(flow.reply.obj.response.content, 'zip') and self.str2bool(self.CompressedFiles) is True:
-                    aZipFile = flow.reply.obj.response.content
-                    self.set_config_archive('ZIP')
-                    flow.reply.obj.response.content = self.inject_zip(aZipFile)
+            if self.bytes_have_format(flow.reply.obj.response.content, 'zip') and self.str2bool(
+                    self.CompressedFiles) is True:
+                aZipFile = flow.reply.obj.response.content
+                self.set_config_archive('ZIP')
+                flow.reply.obj.response.content = self.inject_zip(aZipFile)
 
-            elif self.bytes_have_format(flow.reply.obj.response.content, 'pe') or self.bytes_have_format(flow.reply.obj.response.content, 'elf') or \
-                    self.bytes_have_format(flow.reply.obj.response.content, 'fatfile') or self.bytes_have_format(flow.reply.obj.response.content, 'machox86') or \
+            elif self.bytes_have_format(flow.reply.obj.response.content, 'pe') or self.bytes_have_format(
+                    flow.reply.obj.response.content, 'elf') or \
+                    self.bytes_have_format(flow.reply.obj.response.content, 'fatfile') or self.bytes_have_format(
+                flow.reply.obj.response.content, 'machox86') or \
                     self.bytes_have_format(flow.reply.obj.response.content, 'machox64'):
 
                 tmp = tempfile.NamedTemporaryFile()
@@ -775,7 +792,8 @@ class ProxyMaster(controller.Master):
                 patchResult = self.binaryGrinder(tmp.name)
                 if patchResult:
                     EnhancedOutput.print_info("Patching complete, forwarding to user.")
-                    EnhancedOutput.logging_info("Patching complete for HOST: {0}, PATH: {1}".format(flow.request.host, flow.request.path))
+                    EnhancedOutput.logging_info(
+                        "Patching complete for HOST: {0}, PATH: {1}".format(flow.request.host, flow.request.path))
 
                     bd_file = os.path.join(BDFOLDER, os.path.basename(tmp.name))
                     with open(bd_file, 'r+b') as file2:
@@ -785,26 +803,31 @@ class ProxyMaster(controller.Master):
                     os.remove(bd_file)
                 else:
                     EnhancedOutput.print_error("Patching failed")
-                    EnhancedOutput.logging_info("Patching failed for HOST: {0}, PATH: {1}".format(flow.request.host, flow.request.path))
+                    EnhancedOutput.logging_info(
+                        "Patching failed for HOST: {0}, PATH: {1}".format(flow.request.host, flow.request.path))
 
                 # add_try to delete here
 
                 tmp.close()
-            elif self.bytes_have_format(flow.reply.obj.response.content, 'gz') and self.str2bool(self.CompressedFiles) is True:
+            elif self.bytes_have_format(flow.reply.obj.response.content, 'gz') and self.str2bool(
+                    self.CompressedFiles) is True:
                 # assume .tar.gz for now
                 self.set_config_archive('TAR')
                 flow.reply.obj.response.content = self.inject_tar(flow.reply.obj.response.content, 'gz')
-            elif self.bytes_have_format(flow.reply.obj.response.content, 'bz') and self.str2bool(self.CompressedFiles) is True:
+            elif self.bytes_have_format(flow.reply.obj.response.content, 'bz') and self.str2bool(
+                    self.CompressedFiles) is True:
                 # assume .tar.bz for now
                 self.set_config_archive('TAR')
                 flow.reply.obj.response.content = self.inject_tar(flow.reply.obj.response.content, 'bz')
-            elif self.bytes_have_format(flow.reply.obj.response.content, 'tar') and self.str2bool(self.CompressedFiles) is True:
+            elif self.bytes_have_format(flow.reply.obj.response.content, 'tar') and self.str2bool(
+                    self.CompressedFiles) is True:
                 self.set_config_archive('TAR')
                 flow.reply.obj.response.content = self.inject_tar(flow.reply.obj.response.content, 'tar')
 
             flow.reply()
 
-        print "=" * 10, "END RESPONSE", "=" * 10
+        print("=" * 10, "END RESPONSE", "=" * 10)
+
 
 ################################## START MAIN #######################################
 
